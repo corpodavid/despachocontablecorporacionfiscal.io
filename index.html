@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏫 Plataforma Educativa - Semestre Completo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap');
+        :root {
+            --primary: #1a237e;
+            --primary-light: #3949ab;
+            --success: #2e7d32;
+            --danger: #c62828;
+            --warning: #f57f17;
+            --info: #0277bd;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #212121;
+            --text-light: #757575;
+            --border: #e0e0e0;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); }
+        
+        .header {
+            background: linear-gradient(135deg, #0d1442, #1a237e, #3949ab);
+            color: white; padding: 20px; text-align: center;
+        }
+        .header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.6em; }
+        .header p { opacity: 0.85; font-size: 0.9em; }
+        
+        .status-bar { background: #e8f5e9; padding: 8px; text-align: center; font-size: 0.85em; border-bottom: 2px solid #a5d6a7; }
+        .status-bar.offline { background: #fce4ec; border-color: #ef9a9a; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        /* LOGIN */
+        .login-box {
+            background: var(--card); border-radius: 16px; padding: 30px;
+            max-width: 500px; margin: 30px auto; box-shadow: var(--shadow); text-align: center;
+        }
+        .login-box h2 { color: var(--primary); margin-bottom: 15px; font-family: 'Montserrat', sans-serif; }
+        .role-btns { display: flex; gap: 15px; margin: 20px 0; }
+        .role-btn {
+            flex: 1; padding: 20px; border: 3px solid var(--border); border-radius: 14px;
+            cursor: pointer; text-align: center; transition: 0.3s; background: white;
+        }
+        .role-btn:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow); }
+        .role-btn .icon { font-size: 2em; }
+        .role-btn .label { font-weight: 700; font-family: 'Montserrat', sans-serif; display: block; margin-top: 8px; }
+        
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 5px; color: var(--primary); font-size: 0.9em; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 8px; font-size: 0.95em;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-light); }
+        
+        .btn { padding: 10px 25px; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; font-family: 'Montserrat', sans-serif; cursor: pointer; transition: 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; }
+        .btn-success { background: linear-gradient(135deg, var(--success), #43a047); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #e53935); color: white; }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #ffa000); color: white; }
+        .btn:hover { transform: translateY(-2px); }
+        
+        /* CARDS */
+        .parcial-card { background: var(--card); border-radius: 14px; margin: 15px 0; box-shadow: var(--shadow); overflow: hidden; }
+        .parcial-header { padding: 15px 20px; color: white; font-family: 'Montserrat', sans-serif; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .p1 { background: linear-gradient(135deg, #0d47a1, #1976d2); }
+        .p2 { background: linear-gradient(135deg, #1b5e20, #388e3c); }
+        .p3 { background: linear-gradient(135deg, #e65100, #f57c00); }
+        .parcial-body { padding: 15px; }
+        
+        .activity-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; border: 2px solid var(--border); border-radius: 10px;
+            margin-bottom: 10px; transition: 0.3s; background: #fafbfc;
+        }
+        .activity-item:hover { border-color: var(--primary-light); background: white; }
+        .activity-item.completed { border-color: #a5d6a7; background: #f1f8e9; }
+        .activity-item.locked { opacity: 0.5; }
+        .act-info { flex: 1; }
+        .act-title { font-weight: 600; }
+        .act-desc { font-size: 0.85em; color: var(--text-light); margin-top: 3px; }
+        .act-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 600; }
+        .badge-pending { background: #fff3e0; color: #e65100; }
+        .badge-done { background: #e8f5e9; color: #2e7d32; }
+        .badge-locked { background: #f5f5f5; color: #9e9e9e; }
+        
+        /* ATTENDANCE */
+        .attendance-panel { background: var(--card); border-radius: 14px; padding: 20px; margin: 15px 0; box-shadow: var(--shadow); }
+        .att-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .att-btn { padding: 8px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; }
+        .att-in { background: var(--success); color: white; }
+        .att-out { background: var(--danger); color: white; }
+        .att-log { max-height: 300px; overflow-y: auto; }
+        .att-entry { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.9em; }
+        .att-time { font-weight: 600; color: var(--primary); }
+        
+        /* TIMER */
+        .timer-display { font-family: 'Montserrat', sans-serif; font-size: 2em; font-weight: 800; color: var(--primary); text-align: center; padding: 10px; }
+        .timer-display.warning { color: var(--warning); }
+        .timer-display.danger { color: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        
+        /* EXAM */
+        .exam-box { background: var(--card); border-radius: 14px; padding: 20px; margin: 10px 0; box-shadow: var(--shadow); }
+        .exam-header { background: var(--primary); color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
+        .q-block { margin-bottom: 15px; padding: 12px; border: 2px solid var(--border); border-radius: 8px; }
+        .q-num { display: inline-block; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; text-align: center; line-height: 24px; font-size: 0.75em; font-weight: 700; margin-right: 6px; }
+        .q-text { font-weight: 500; margin-bottom: 10px; display: block; }
+        .opts { list-style: none; }
+        .opts li { margin-bottom: 5px; }
+        .opts label { display: flex; align-items: center; padding: 8px; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .opts label:hover { border-color: var(--primary-light); background: #e8eaf6; }
+        .opts input[type="radio"] { margin-right: 8px; accent-color: var(--primary); }
+        .opts label:has(input:checked) { border-color: var(--primary); background: #e8eaf6; }
+        
+        .explanation-box { background: #e3f2fd; border-left: 4px solid var(--info); padding: 15px; border-radius: 0 8px 8px 0; margin: 15px 0; }
+        .explanation-box h4 { color: var(--info); margin-bottom: 8px; }
+        .tip-box { background: #fff3e0; border-left: 4px solid var(--warning); padding: 12px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 0.9em; }
+        
+        /* TEACHER DASHBOARD */
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); border-radius: 12px; padding: 15px; box-shadow: var(--shadow); text-align: center; }
+        .stat-card .num { font-family: 'Montserrat', sans-serif; font-size: 1.8em; font-weight: 800; }
+        .stat-card .lbl { font-size: 0.75em; color: var(--text-light); text-transform: uppercase; }
+        
+        .table-wrap { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin: 15px 0; }
+        .table-header { background: var(--primary); color: white; padding: 12px 15px; font-family: 'Montserrat', sans-serif; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85em; }
+        th { background: #f5f5f5; font-weight: 600; color: var(--text-light); text-transform: uppercase; }
+        tr:hover { background: #f8f9ff; }
+        .grade-badge { padding: 3px 10px; border-radius: 15px; font-weight: 700; font-size: 0.8em; color: white; }
+        .g-excellent { background: var(--success); }
+        .g-good { background: #1976d2; }
+        .g-avg { background: var(--warning); }
+        .g-fail { background: var(--danger); }
+        
+        .nav-tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .nav-tab { padding: 8px 15px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85em; transition: 0.3s; background: white; }
+        .nav-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-tab:hover { border-color: var(--primary-light); }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal { background: var(--card); border-radius: 16px; padding: 25px; max-width: 600px; margin: 50px auto; max-height: 80vh; overflow-y: auto; }
+        
+        .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--success), #66bb6a); transition: width 0.5s; }
+        
+        .week-schedule { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .week-card { background: var(--card); border-radius: 10px; padding: 12px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
+        .week-card .day { font-weight: 700; color: var(--primary); }
+        .week-card .time { font-size: 0.85em; color: var(--text-light); }
+        
+        .hidden { display: none !important; }
+        
+        @media (max-width: 768px) {
+            .role-btns { flex-direction: column; }
+            .week-schedule { grid-template-columns: 1fr; }
+            .dash-grid { grid-template-columns: 1fr 1fr; }
+            .container { padding: 10px; }
+            table { font-size: 0.75em; }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>🏫 Plataforma Educativa Semestral</h1>
+    <p>Sistema Integral de Evaluación | 3 Parciales | 24 Actividades | Asistencia y Calificaciones</p>
+</div>
+<div id="statusBar" class="status-bar">🟢 Sistema Activo | Sesión: <span id="sessionUser">Sin iniciar</span></div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+    <div class="login-box">
+        <h2>🔐 Acceso al Sistema</h2>
+        <p>Seleccione su rol</p>
+        <div class="role-btns">
+            <div class="role-btn" onclick="showLogin('alumno')">
+                <div class="icon">🎓</div>
+                <div class="label">ALUMNO</div>
+            </div>
+            <div class="role-btn" onclick="showLogin('docente')">
+                <div class="icon">👨‍🏫</div>
+                <div class="label">DOCENTE</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- REGISTRO ALUMNO -->
+<div id="alumnoRegScreen" class="screen">
+    <div class="login-box">
+        <h2>🎓 Registro de Alumno</h2>
+        <div class="form-group"><label>👤 Nombre Completo:</label><input type="text" id="aName" placeholder="Nombre y Apellidos"></div>
+        <div class="form-group"><label>📚 Materia:</label><input type="text" id="aSubject" placeholder="Ej: Redacción y Ortografía"></div>
+        <div class="form-group"><label>🏫 Grupo:</label><input type="text" id="aGroup" placeholder="Ej: 7A"></div>
+        <div class="form-group"><label>🔢 Matrícula:</label><input type="text" id="aId" placeholder="Ej: 2024001"></div>
+        <button class="btn btn-primary" onclick="alumnoReg()" style="width:100%;">✅ Registrarse e Iniciar</button>
+        <br><br><button class="btn" style="background:#eee;color:#333;" onclick="showScreen('loginScreen')">← Regresar</button>
+    </div>
+</div>
+
+<!-- PANEL ALUMNO -->
+<div id="alumnoPanel" class="screen">
+    <div class="container">
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('parciales')">📚 Parciales</div>
+            <div class="nav-tab" onclick="switchTab('asistencia')">⏰ Asistencia</div>
+            <div class="nav-tab" onclick="switchTab('horario')">📅 Horario</div>
+            <div class="nav-tab" onclick="switchTab('calificaciones')">📊 Mis Calificaciones</div>
+        </div>
+        
+        <!-- TAB: PARCIALES -->
+        <div id="tab-parciales" class="tab-content">
+            <div id="parcialesContainer"></div>
+        </div>
+        
+        <!-- TAB: ASISTENCIA -->
+        <div id="tab-asistencia" class="tab-content hidden">
+            <div class="attendance-panel">
+                <div class="att-header">
+                    <h3>⏰ Control de Asistencia</h3>
+                    <div>
+                        <button class="att-btn att-in" onclick="checkIn()">✅ Entrada</button>
+                        <button class="att-btn att-out" onclick="checkOut()">🚪 Salida</button>
+                    </div>
+                </div>
+                <div id="attStatus" style="text-align:center;padding:15px;background:#e8f5e9;border-radius:10px;margin-bottom:15px;font-weight:600;"></div>
+                <div class="att-log" id="attLog"></div>
+            </div>
+        </div>
+        
+        <!-- TAB: HORARIO -->
+        <div id="tab-horario" class="tab-content hidden">
+            <div class="attendance-panel">
+                <h3 style="margin-bottom:15px;">📅 Horario Semanal (2 sesiones de 2 horas)</h3>
+                <div class="week-schedule" id="weekSchedule"></div>
+                <div class="tip-box">
+                    <strong>📌 Reglas de Asistencia:</strong>
+                    <ul style="margin-top:8px;padding-left:20px;">
+                        <li>2 sesiones por semana (días asignados)</li>
+                        <li>Cada sesión dura 2 horas máximo</li>
+                        <li>No se permite exceder el tiempo asignado</li>
+                        <li>Checar entrada Y salida obligatorio</li>
+                        <li>3 retardos = 1 falta</li>
+                        <li>Máximo 3 faltas para tener derecho a ordinario</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: CALIFICACIONES -->
+        <div id="tab-calificaciones" class="tab-content hidden">
+            <div class="attendance-panel" id="gradeSummary"></div>
+        </div>
+    </div>
+</div>
+
+<!-- PANTALLA EXAMEN -->
+<div id="examScreen" class="screen">
+    <div style="position:sticky;top:0;z-index:100;background:var(--primary-dark);color:white;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;">
+        <span id="examTitle" style="font-family:'Montserrat';font-weight:700;"></span>
+        <div id="examTimer" style="font-family:'Montserrat';font-size:1.3em;font-weight:700;">⏱️ 30:00</div>
+    </div>
+    <div class="container" id="examContent"></div>
+    <div class="submit-area" style="text-align:center;margin:20px 0;padding-bottom:40px;">
+        <p style="color:var(--danger);font-weight:600;margin-bottom:10px;">⚠️ Al entregar no podrá modificar sus respuestas</p>
+        <button class="btn btn-danger" onclick="submitExam()">📤 ENTREGAR EXAMEN</button>
+    </div>
+</div>
+
+<!-- RESULTADO -->
+<div id="resultScreen" class="screen">
+    <div class="login-box" id="resultBox" style="max-width:550px;"></div>
+</div>
+
+<!-- PANEL DOCENTE -->
+<div id="docentePanel" class="screen">
+    <div class="container">
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchDocTab('general')">📊 General</div>
+            <div class="nav-tab" onclick="switchDocTab('alumnos')">👥 Alumnos</div>
+            <div class="nav-tab" onclick="switchDocTab('asistencia')">⏰ Asistencia</div>
+            <div class="nav-tab" onclick="switchDocTab('actividades')">📝 Actividades</div>
+            <div class="nav-tab" onclick="switchDocTab('exportar')">📥 Exportar</div>
+        </div>
+        
+        <div id="doc-tab-general" class="doc-tab">
+            <div class="dash-grid" id="docStats"></div>
+        </div>
+        
+        <div id="doc-tab-alumnos" class="doc-tab hidden">
+            <div class="table-wrap">
+                <div class="table-header">👥 Registro de Alumnos y Calificaciones</div>
+                <div style="overflow-x:auto;">
+                    <table id="studentsTable">
+                        <thead>
+                            <tr><th>#</th><th>Alumno</th><th>Grupo</th><th>Parcial 1</th><th>Parcial 2</th><th>Parcial 3</th><th>Final</th><th>Estado</th></tr>
+                        </thead>
+                        <tbody id="studentsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="doc-tab-asistencia" class="doc-tab hidden">
+            <div class="table-wrap">
+                <div class="table-header">⏰ Registro de Asistencia General</div>
+                <div style="overflow-x:auto;">
+                    <table id="attTable">
+                        <thead>
+                            <tr><th>Alumno</th><th>Grupo</th><th>Asistencias</th><th>Faltas</th><th>Retardos</th><th>Total Horas</th><th>% Asistencia</th></tr>
+                        </thead>
+                        <tbody id="attBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="doc-tab-actividades" class="doc-tab hidden">
+            <div class="table-wrap">
+                <div class="table-header">📝 Avance de Actividades por Alumno</div>
+                <div style="overflow-x:auto;">
+                    <table id="actTable">
+                        <thead>
+                            <tr><th>Alumno</th><th>Parcial</th><th>Actividad</th><th>Estado</th><th>Calificación</th><th>Fecha</th></tr>
+                        </thead>
+                        <tbody id="actBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="doc-tab-exportar" class="doc-tab hidden">
+            <div class="login-box" style="max-width:600px;">
+                <h3>📥 Exportar Datos</h3>
+                <p style="margin-bottom:20px;color:var(--text-light);">Descargue los reportes directamente a su computadora</p>
+                <button class="btn btn-success" onclick="exportGrades()" style="width:100%;margin-bottom:10px;">📊 Exportar Calificaciones (CSV)</button>
+                <button class="btn btn-primary" onclick="exportAttendance()" style="width:100%;margin-bottom:10px;">📋 Exportar Asistencia (CSV)</button>
+                <button class="btn btn-warning" onclick="exportFullReport()" style="width:100%;">📑 Exportar Reporte Completo (CSV)</button>
+            </div>
+        </div>
+        
+        <button class="btn" style="background:#eee;color:#333;margin-top:20px;" onclick="showScreen('loginScreen')">🚪 Cerrar Sesión</button>
+    </div>
+</div>
+
+<script>
+// ============================================
+// DATOS DEL SEMESTRE
+// ============================================
+const SEMESTER = {
+    parciales: [
+        {
+            id: 1, name: "Primer Parcial", color: "p1", period: "Semanas 1-6",
+            activities: [
+                { id: "1-1", name: "Elementos de la Comunicación", desc: "Emisor, receptor, canal, mensaje, código y contexto", explanation: "La comunicación es el proceso mediante el cual se transmite información entre dos o más participantes. Los elementos fundamentales son: EMISOR (quien origina el mensaje), RECEPTOR (quien lo recibe), CANAL (medio por donde circula), MENSAJE (contenido transmitido), CÓDIGO (sistema de signos compartido) y CONTEXTO (situación en que se produce). En sistemas distribuidos, estos elementos se extienden a múltiples nodos de red.", tips: "Tip de redacción: Use conectores como 'asimismo', 'por lo tanto', 'en consecuencia'. Evite repeticiones innecesarias. Cuide la acentuación de 'código', 'comunicación', 'información'.", questions: [] },
+                { id: "1-2", name: "Paso de Mensajes", desc: "Mecanismos de envío y recepción entre procesos", explanation: "El paso de mensajes (Message Passing) es un paradigma de comunicación donde los procesos intercambian información mediante el envío y recepción explícita de datos. No comparten memoria; cada proceso tiene su propio espacio. Se utiliza en sistemas como MPI (Message Passing Interface) para computación paralela.", tips: "Ortografía: 'Mensajes' lleva tilde en la 'e' por ser palabra aguda terminada en 's'. 'Paralela' se escribe con doble 'l' (elle).", questions: [] },
+                { id: "1-3", name: "Objetos Distribuidos", desc: "Acceso a objetos remotos en red", explanation: "Los objetos distribuidos permiten que un objeto en un nodo de red sea invocado como si estuviera localmente. Tecnologías como RMI (Java), CORBA y .NET Remoting facilitan esta comunicación. El stub (cliente) y skeleton (servidor) actúan como intermediarios.", tips: "Redacción: Evite mezclar inglés y español sin necesidad. Use 'objeto remoto' en lugar de 'remote object' cuando sea posible.", questions: [] },
+                { id: "1-4", name: "Comunicación Síncrona vs Asíncrona", desc: "Bloqueante vs no bloqueante", explanation: "SÍNCRONA: El emisor se bloquea hasta recibir respuesta del receptor. Ejemplo: llamada telefónica. ASÍNCRONA: El emisor continúa su ejecución sin esperar. Ejemplo: correo electrónico. En sistemas distribuidos, la asíncrona es más eficiente pero requiere manejo de colas y persistencia.", tips: "Acentuación: 'Síncrona' y 'Asíncrona' llevan tilde por ser palabras esdrújulas. 'Teléfono' también es esdrújula.", questions: [] },
+                { id: "1-5", name: "Tecnologías: ASMX y WCF", desc: "Servicios web de Microsoft", explanation: "ASMX: Servicios web basados en SOAP/XML, la tecnología más antigua de .NET. WCF (Windows Communication Foundation): Framework unificado que soporta múltiples protocolos (HTTP, TCP, named pipes, MSMQ). WCF reemplaza ASMX por su mayor flexibilidad.", tips: "Ortografía: 'Framework' se escribe en cursiva o entre comillas en textos académicos formales. 'XML' y 'SOAP' son acrónimos y se escriben en mayúsculas.", questions: [] },
+                { id: "1-6", name: "RMI y CORBA", desc: "Invocación remota de métodos", explanation: "RMI (Remote Method Invocation): Permite invocar métodos de objetos Java en otras máquinas JVM. CORBA (Common Object Request Broker Architecture): Estándar independiente del lenguaje que usa un ORB (Object Request Broker) para facilitar comunicación entre objetos en diferentes lenguajes.", tips: "Redacción: Al explicar conceptos técnicos, primero dé la definición completa y luego el acrónimo entre paréntesis: 'Invocación Remota de Métodos (RMI)'.", questions: [] },
+                { id: "1-7", name: "Ejercicio Integrador 1", desc: "Práctica de comunicación distribuida", explanation: "En esta actividad integradora, el alumno diseñará un diagrama de comunicación para un sistema de chat distribuido, identificando todos los elementos y seleccionando el tipo de comunicación más adecuado.", tips: "Ortografía: 'Chat' es un extranjerismo aceptado. 'Integradora' lleva tilde en la 'o'. 'Diseñará' lleva tilde por ser palabra aguda terminada en vocal.", questions: [] },
+                { id: "1-8", name: "Examen Parcial 1", desc: "Evaluación del primer parcial", explanation: "Este examen evalúa todos los conceptos del primer parcial: elementos de comunicación, paso de mensajes, objetos distribuidos, comunicación síncrona/asíncrona y tecnologías ASMX, WCF, RMI y CORBA.", tips: "Consejo: Lea cada pregunta dos veces antes de responder. Administre su tiempo. Revise ortografía en respuestas abiertas.", questions: [] }
+            ]
+        },
+        {
+            id: 2, name: "Segundo Parcial", color: "p2", period: "Semanas 7-12",
+            activities: [
+                { id: "2-1", name: "Conceptos de Cloud Computing", desc: "Definición y características de la nube", explanation: "Cloud Computing es un modelo que ofrece recursos computacionales (servidores, almacenamiento, bases de datos, redes) bajo demanda a través de Internet. Características: autoservicio bajo demanda, acceso por red, agrupación de recursos, elasticidad rápida y servicio medido.", tips: "Redacción: 'Cloud Computing' puede escribirse como 'cómputo en la nube' en español. Evite el uso excesivo de anglicismos en trabajos formales.", questions: [] },
+                { id: "2-2", name: "Tipos de Nube", desc: "Pública, privada, híbrida y comunitaria", explanation: "PÚBLICA: Recursos compartidos, ofrecidos por terceros (AWS, Azure). PRIVADA: Infraestructura exclusiva para una organización. HÍBRIDA: Combina pública y privada. COMUNITARIA: Compartida por organizaciones con intereses comunes (gobiernos, universidades).", tips: "Acentuación: 'Pública', 'Híbrida', 'Comunitaria' llevan tilde. 'Organización' también es esdrújula.", questions: [] },
+                { id: "2-3", name: "Infraestructura en la Nube", desc: "Virtualización y recursos", explanation: "La infraestructura cloud se basa en virtualización: hipervisores (VMware, Hyper-V, KVM) permiten crear máquinas virtuales. Los recursos se agrupan en pools y se asignan dinámicamente. Data centers distribuidos globalmente garantizan disponibilidad.", tips: "Ortografía: 'Virtualización' con 'z', no con 's'. 'Hipervisor' es un tecnicismo aceptado en informática.", questions: [] },
+                { id: "2-4", name: "Modelos de Servicio: IaaS, PaaS, SaaS", desc: "Tipos de servicio en la nube", explanation: "IaaS (Infrastructure as a Service): El proveedor gestiona hardware; el cliente gestiona SO, middleware y apps. Ej: Amazon EC2. PaaS (Platform as a Service): Proveedor gestiona hasta el SO; cliente desarrolla apps. Ej: Heroku. SaaS (Software as a Service): Software completo vía navegador. Ej: Gmail.", tips: "Redacción: Al definir siglas, escríbalas completas primero y luego la abreviatura: 'Infraestructura como Servicio (IaaS)'.", questions: [] },
+                { id: "2-5", name: "Usos y Aplicaciones de la Nube", desc: "Casos de uso reales", explanation: "La nube se aplica en: almacenamiento (Dropbox, Drive), procesamiento de datos (AWS Lambda), machine learning (Google AI), IoT (AWS IoT), gaming (Google Stadia), educación (Google Classroom), salud (historiales electrónicos). Permite escalabilidad y reducción de costos.", tips: "Ortografía: 'Aplicaciones' lleva tilde en la 'ó'. 'Reducción' también es aguda terminada en 'n'.", questions: [] },
+                { id: "2-6", name: "Ejercicio Integrador 2", desc: "Diseño de arquitectura cloud", explanation: "El alumno diseñará la arquitectura cloud para una empresa ficticia, seleccionando el tipo de nube, modelos de servicio y justificando cada elección con argumentos técnicos y de negocio.", tips: "Redacción: Use conectores de justificación: 'debido a', 'en virtud de', 'por consiguiente'. Estructure: introducción, desarrollo, conclusión.", questions: [] },
+                { id: "2-7", name: "Práctica de Implementación", desc: "Despliegue en plataforma cloud", explanation: "Práctica guiada de despliegue de una aplicación web en una plataforma cloud (Heroku, AWS o Google Cloud). El alumno configurará el entorno, desplegará la aplicación y verificará su funcionamiento.", tips: "Ortografía: 'Despliegue' se escribe con 'll', no con 'y'. 'Verificará' lleva tilde por ser palabra aguda.", questions: [] },
+                { id: "2-8", name: "Examen Parcial 2", desc: "Evaluación del segundo parcial", explanation: "Examen que cubre: conceptos de cloud, tipos de nube, infraestructura, modelos de servicio (IaaS, PaaS, SaaS), usos y aplicaciones, y ejercicios prácticos del segundo parcial.", tips: "Consejo: En respuestas abiertas, cite ejemplos concretos. Use puntuación correcta: punto y seguido entre ideas diferentes.", questions: [] }
+            ]
+        },
+        {
+            id: 3, name: "Tercer Parcial", color: "p3", period: "Semanas 13-18",
+            activities: [
+                { id: "3-1", name: "Videoconferencia", desc: "Sistemas de comunicación audiovisual", explanation: "Las videoconferencias permiten comunicación audiovisual en tiempo real entre múltiples participantes. Protocolos clave: WebRTC (comunicación navegador a navegador), SIP (iniciación de sesión), H.323 (estándar ITU). Requieren baja latencia, ancho de banda adecuado y codecs eficientes (H.264, VP8).", tips: "Redacción: 'Videoconferencia' es una palabra compuesta correcta. No se escribe 'video conferencia' separado. 'Códec' lleva tilde.", questions: [] },
+                { id: "3-2", name: "Geoprocesamiento", desc: "Análisis espacial distribuido", explanation: "El geoprocesamiento implica el análisis y manipulación de datos geográficos mediante sistemas distribuidos. Tecnologías: GIS (Sistemas de Información Geográfica), GPS, teledetección. Aplicaciones: navegación, logística, urbanismo, gestión de desastres naturales.", tips: "Ortografía: 'Geoprocesamiento' se escribe junto. 'Geográfica' lleva tilde en la 'á'. 'Logística' también.", questions: [] },
+                { id: "3-3", name: "Enseñanza Asistida por Computadora", desc: "Tecnología educativa distribuida", explanation: "La EAC utiliza sistemas distribuidos para facilitar el aprendizaje: plataformas LMS (Moodle, Canvas), aulas virtuales, laboratorios remotos, simuladores. Combina videoconferencia, almacenamiento en nube y herramientas colaborativas.", tips: "Redacción: 'Computadora' es el término preferido en México; en España se usa 'ordenador'. Sea consistente en su texto.", questions: [] },
+                { id: "3-4", name: "Juegos Multiusuario", desc: "Arquitectura de juegos en red", explanation: "Los juegos multiusuario requieren sincronización de estados, servidor dedicado o P2P, y protocolos de comunicación en tiempo real. Conceptos: predicción del cliente, interpolación, reconciliación de estados. Arquitecturas: cliente-servidor, P2P, híbrida.", tips: "Ortografía: 'Multiusuario' se escribe junto. 'Sincronización' con 'z'. 'Arquitectura' lleva 'qu'.", questions: [] },
+                { id: "3-5", name: "Proyectos Integrados", desc: "Desarrollo de proyecto final", explanation: "El alumno integrará todos los conocimientos del semestre en un proyecto que combine: comunicación distribuida, cloud computing y una aplicación práctica (videoconferencia, geo, educativa o juego). Debe documentar la arquitectura y justificar las decisiones técnicas.", tips: "Redacción: La documentación técnica debe incluir: resumen, objetivos, metodología, desarrollo, resultados, conclusiones y referencias bibliográficas.", questions: [] },
+                { id: "3-6", name: "Ejercicio Integrador 3", desc: "Práctica de proyecto integrado", explanation: "Ejercicio práctico donde el alumno implementa un prototipo funcional del proyecto integrado, aplicando conceptos de las 3 unidades: comunicación distribuida, cloud y tipo de aplicación.", tips: "Ortografía: 'Prototipo' con 'y', no con 'll'. 'Implementa' sin tilde (es llana terminada en vocal).", questions: [] },
+                { id: "3-7", name: "Presentación de Proyecto", desc: "Exposición ante el grupo", explanation: "El alumno presenta su proyecto integrado frente al grupo, demostrando funcionalidad, explicando la arquitectura y respondiendo preguntas. Se evalúa: contenido técnico, calidad de la presentación, dominio del tema y habilidades de comunicación oral.", tips: "Redacción para presentación: Prepare un guion. Use lenguaje formal pero accesible. Evite muletillas ('eh', 'este', 'o sea'). Practique la pronunciación de términos técnicos.", questions: [] },
+                { id: "3-8", name: "Examen Parcial 3", desc: "Evaluación del tercer parcial", explanation: "Examen final que cubre: videoconferencia, geoprocesamiento, enseñanza asistida, juegos multiusuario, proyectos integrados y todos los conceptos vistos durante el semestre.", tips: "Consejo final: Revise TODA su ortografía antes de entregar. Verifique tildes, signos de puntuación y coherencia en sus respuestas.", questions: [] }
+            ]
+        }
+    ]
+};
+
+// ============================================
+// PREGUNTAS PARA CADA ACTIVIDAD
+// ============================================
+function generateQuestions(actId) {
+    const qBank = {
+        '1-1': [
+            { q: "¿Cuál NO es un elemento del proceso de comunicación?", opts: ["Emisor", "Receptor", "Compilador", "Canal"], a: 2 },
+            { q: "El medio por donde viaja el mensaje se llama:", opts: ["Código", "Canal", "Contexto", "Receptor"], a: 1 },
+            { q: "El sistema de signos compartido entre emisor y receptor es:", opts: ["El canal", "El contexto", "El código", "El mensaje"], a: 2 },
+            { q: "La situación en la que se produce la comunicación se denomina:", opts: ["Código", "Contexto", "Canal", "Retroalimentación"], a: 1 },
+            { q: "¿Cuál es la función principal del emisor?", opts: ["Recibir información", "Decodificar el mensaje", "Originar y transmitir el mensaje", "Almacenar datos"], a: 2 }
+        ],
+        '1-2': [
+            { q: "En el paso de mensajes, los procesos:", opts: ["Comparten memoria", "Tienen memoria independiente", "Usan la misma RAM", "No se comunican"], a: 1 },
+            { q: "MPI significa:", opts: ["Message Processing Interface", "Message Passing Interface", "Multiple Process Integration", "Main Program Interface"], a: 1 },
+            { q: "¿Qué tipo de comunicación usa el paso de mensajes?", opts: ["Memoria compartida", "Envío explícito de datos", "Acceso directo a disco", "Solo señales"], a: 1 },
+            { q: "Una ventaja del paso de mensajes es:", opts: ["Mayor consumo de memoria", "Escalabilidad en sistemas distribuidos", "Requiere menos red", "Solo funciona en una máquina"], a: 1 },
+            { q: "El 'buffer' en paso de mensajes sirve para:", opts: ["Almacenar temporalmente datos", "Eliminar datos", "Comprimir archivos", "Conectar a Internet"], a: 0 }
+        ],
+        '1-3': [
+            { q: "RMI permite:", opts: ["Acceder a archivos locales", "Invocar métodos de objetos remotos", "Enviar correos", "Comprimir datos"], a: 1 },
+            { q: "CORBA es independiente de:", opts: ["La red", "El lenguaje de programación", "El sistema operativo únicamente", "La base de datos"], a: 1 },
+            { q: "El 'stub' en objetos distribuidos actúa como:", opts: ["Servidor principal", "Representante local del objeto remoto", "Base de datos", "Firewall"], a: 1 },
+            { q: "¿Qué es un ORB?", opts: ["Un tipo de red", "Object Request Broker", "Un protocolo de email", "Un sistema de archivos"], a: 1 },
+            { q: "Los objetos distribuidos se acceden:", opts: ["Solo localmente", "A través de la red como si fueran locales", "Mediante USB", "Solo en la misma JVM"], a: 1 }
+        ],
+        '1-4': [
+            { q: "En comunicación síncrona, el emisor:", opts: ["Continúa sin esperar", "Se bloquea hasta recibir respuesta", "No envía datos", "Usa colas de mensajes"], a: 1 },
+            { q: "Ejemplo de comunicación asíncrona:", opts: ["Llamada telefónica", "Videoconferencia en vivo", "Correo electrónico", "Chat en tiempo real"], a: 2 },
+            { q: "La comunicación asíncrona es más eficiente porque:", opts: ["No requiere red", "El emisor no se bloquea", "Usa menos memoria", "Es más segura"], a: 1 },
+            { q: "¿Qué se requiere para comunicación asíncrona fiable?", opts: ["Solo cables", "Colas de mensajes y persistencia", "Memoria compartida", "Un solo proceso"], a: 1 },
+            { q: "Una llamada telefónica es un ejemplo de comunicación:", opts: ["Asíncrona", "Síncrona", "Multicast", "Broadcast"], a: 1 }
+        ],
+        '1-5': [
+            { q: "WCF soporta el protocolo:", opts: ["Solo HTTP", "HTTP, TCP, named pipes y MSMQ", "Solo FTP", "Solo SMTP"], a: 1 },
+            { q: "ASMX se basa en:", opts: ["REST y JSON", "SOAP y XML", "gRPC y Protocol Buffers", "WebSocket"], a: 1 },
+            { q: "WCF reemplaza a ASMX porque:", opts: ["Es más antiguo", "Ofrece mayor flexibilidad y múltiples protocolos", "Es más simple", "No requiere programación"], a: 1 },
+            { q: "SOAP es:", opts: ["Un lenguaje de programación", "Un protocolo de mensajería XML", "Una base de datos", "Un sistema operativo"], a: 1 },
+            { q: "¿Cuál empresa desarrolló WCF?", opts: ["Google", "Apple", "Microsoft", "Amazon"], a: 2 }
+        ],
+        '1-6': [
+            { q: "RMI es nativo del lenguaje:", opts: ["C++", "Python", "Java", "JavaScript"], a: 2 },
+            { q: "CORBA utiliza un componente llamado:", opts: ["JVM", "ORB", "CLR", "V8"], a: 1 },
+            { q: "El 'skeleton' en RMI se encuentra en:", opts: ["El cliente", "El servidor", "Ambos", "La red"], a: 1 },
+            { q: "¿Qué permite CORBA que RMI no puede?", opts: ["Comunicación entre diferentes lenguajes", "Solo comunicación Java", "Solo comunicación local", "Solo comunicación HTTP"], a: 0 },
+            { q: "RMI requiere que ambos extremos usen:", opts: ["Diferentes lenguajes", "JVM (Java Virtual Machine)", "Windows", "Linux"], a: 1 }
+        ],
+        '1-7': [
+            { q: "Para un sistema de chat distribuido, lo más adecuado es:", opts: ["Solo memoria compartida", "Paso de mensajes con colas persistentes", "Archivos de texto", "Base de datos local"], a: 1 },
+            { q: "En un diagrama de comunicación, las flechas representan:", opts: ["Archivos", "Flujo de mensajes entre componentes", "Cables de red", "Bases de datos"], a: 1 },
+            { q: "La comunicación más apropiada para chat en tiempo real es:", opts: ["Asíncrona con colas", "Síncrona con espera activa", "Sin comunicación", "Solo email"], a: 0 },
+            { q: "Al diseñar un sistema distribuido, primero se debe:", opts: ["Escribir código", "Identificar componentes y su comunicación", "Comprar hardware", "Instalar Windows"], a: 1 },
+            { q: "Un sistema de chat necesita:", opts: ["Solo un servidor", "Emisor, receptor, canal, protocolo y medio", "Solo base de datos", "Solo interfaz gráfica"], a: 1 }
+        ],
+        '1-8': [
+            { q: "¿Cuál tecnología Microsoft unifica múltiples protocolos?", opts: ["ASMX", "WCF", "RMI", "CORBA"], a: 1 },
+            { q: "La comunicación donde el emisor espera respuesta es:", opts: ["Asíncrona", "Síncrona", "Multicast", "Broadcast"], a: 1 },
+            { q: "El 'contexto' en comunicación es:", opts: ["El código usado", "La situación donde se produce", "El medio físico", "El receptor"], a: 1 },
+            { q: "RMI funciona nativamente en:", opts: ["Python", "C++", "Java", "Ruby"], a: 2 },
+            { q: "CORBA permite comunicación entre:", opts: ["Solo objetos Java", "Objetos en diferentes lenguajes", "Solo servidores web", "Solo bases de datos"], a: 1 }
+        ],
+        '2-1': [
+            { q: "Cloud Computing ofrece recursos:", opts: ["Solo locales", "Bajo demanda a través de Internet", "Solo en USB", "Solo por Bluetooth"], a: 1 },
+            { q: "Una característica del cloud es:", opts: ["Requiere hardware propio", "Autoservicio bajo demanda", "No necesita Internet", "Es siempre gratis"], a: 1 },
+            { q: "La 'elasticidad' en cloud significa:", opts: ["Los cables son flexibles", "Agregar/quitar recursos según demanda", "La pantalla se estira", "El mouse es inalámbrico"], a: 1 },
+            { q: "El modelo de cobro típico del cloud es:", opts: ["Pago único", "Pago por uso (pay-as-you-go)", "Gratis siempre", "Pago por cable"], a: 1 },
+            { q: "¿Quién gestiona el hardware en cloud?", opts: ["El usuario", "El proveedor de servicios", "El gobierno", "Nadie"], a: 1 }
+        ],
+        '2-2': [
+            { q: "AWS y Azure son ejemplos de nube:", opts: ["Privada", "Pública", "Híbrida", "Comunitaria"], a: 1 },
+            { q: "Una nube exclusiva para una organización es:", opts: ["Pública", "Privada", "Híbrida", "Comunitaria"], a: 1 },
+            { q: "La nube híbrida combina:", opts: ["Solo nubes públicas", "Pública y privada", "Solo nubes privadas", "Nada"], a: 1 },
+            { q: "Una nube comunitaria es compartida por:", opts: ["Cualquier persona", "Organizaciones con intereses comunes", "Solo gobiernos", "Solo empresas de tecnología"], a: 1 },
+            { q: "¿Qué nube ofrece mayor control de seguridad?", opts: ["Pública", "Privada", "Comunitaria", "Ninguna"], a: 1 }
+        ],
+        '2-3': [
+            { q: "La virtualización permite:", opts: ["Crear máquinas virtuales sobre hardware físico", "Eliminar servidores", "Solo almacenar archivos", "Conectar cables"], a: 0 },
+            { q: "VMware es un ejemplo de:", opts: ["Hipervisor", "Navegador", "Sistema operativo móvil", "Base de datos"], a: 0 },
+            { q: "Los 'data centers' en cloud están:", opts: ["Solo en una ciudad", "Distribuidos globalmente", "En el espacio", "Solo en Europa"], a: 1 },
+            { q: "Un 'pool' de recursos es:", opts: ["Una alberca", "Agrupación de recursos para asignación dinámica", "Un tipo de cable", "Un protocolo"], a: 1 },
+            { q: "La disponibilidad en cloud se garantiza con:", opts: ["Un solo servidor", "Data centers redundantes y distribuidos", "Apagar las máquinas", "Usar solo WiFi"], a: 1 }
+        ],
+        '2-4': [
+            { q: "En IaaS, el proveedor gestiona:", opts: ["Las aplicaciones", "Hardware y virtualización", "Solo el navegador", "Los datos del usuario"], a: 1 },
+            { q: "Heroku es un ejemplo de:", opts: ["IaaS", "PaaS", "SaaS", "DaaS"], a: 1 },
+            { q: "Gmail es un ejemplo de:", opts: ["IaaS", "PaaS", "SaaS", "On-premise"], a: 2 },
+            { q: "En SaaS, el usuario:", opts: ["Gestiona servidores", "Usa software completo vía navegador", "Programa el sistema operativo", "Configura la red"], a: 1 },
+            { q: "Amazon EC2 es un servicio:", opts: ["SaaS", "PaaS", "IaaS", "FaaS"], a: 2 }
+        ],
+        '2-5': [
+            { q: "Dropbox es un servicio de:", opts: ["Geoprocesamiento", "Almacenamiento en la nube", "Videoconferencia", "Juegos"], a: 1 },
+            { q: "AWS Lambda permite:", opts: ["Almacenar fotos", "Ejecutar código sin servidores (serverless)", "Enviar correos", "Editar videos"], a: 1 },
+            { q: "Google Classroom es un ejemplo de cloud en:", opts: ["Salud", "Educación", "Gaming", "Manufactura"], a: 1 },
+            { q: "Una ventaja del cloud es:", opts: ["Mayor costo de infraestructura", "Reducción de costos y escalabilidad", "Necesitar más personal", "Mayor mantenimiento físico"], a: 1 },
+            { q: "IoT en la nube se refiere a:", opts: ["Internet of Things", "Internet of Text", "Input of Technology", "Image of Time"], a: 0 }
+        ],
+        '2-6': [
+            { q: "Para una startup con carga variable, lo mejor es:", opts: ["Servidores locales fijos", "Nube pública con escalabilidad", "No usar tecnología", "Solo USB"], a: 1 },
+            { q: "Al diseñar arquitectura cloud, primero se debe:", opts: ["Comprar servidores", "Analizar necesidades y seleccionar modelo", "Instalar Windows", "Conectar cables"], a: 1 },
+            { q: "Una empresa con datos sensibles debería usar:", opts: ["Solo nube pública", "Nube privada o híbrida", "Solo USB", "Papel y lápiz"], a: 1 },
+            { q: "La justificación técnica debe incluir:", opts: ["Solo el precio", "Aspectos técnicos y de negocio", "Solo opiniones", "Solo marcas"], a: 1 },
+            { q: "La escalabilidad horizontal significa:", opts: ["Agregar más potencia a un servidor", "Agregar más servidores", "Eliminar servidores", "Apagar la red"], a: 1 }
+        ],
+        '2-7': [
+            { q: "Para desplegar una app web en cloud, se necesita:", opts: ["Solo un navegador", "Configurar entorno y subir aplicación", "Solo un USB", "Solo un cable"], a: 1 },
+            { q: "Heroku permite desplegar apps mediante:", opts: ["Solo FTP", "Git push", "Solo email", "Solo USB"], a: 1 },
+            { q: "Al desplegar en AWS, se usa:", opts: ["Solo notepad", "Consola de administración AWS", "Solo papel", "Solo calculadora"], a: 1 },
+            { q: "Verificar el funcionamiento implica:", opts: ["Ignorar errores", "Probar la app y revisar logs", "Apagar el servidor", "Borrar todo"], a: 1 },
+            { q: "Un 'deploy' exitoso significa:", opts: ["La app funciona en el entorno cloud", "La app solo funciona localmente", "Se borró la base de datos", "Se apagó el servidor"], a: 0 }
+        ],
+        '2-8': [
+            { q: "IaaS significa:", opts: ["Internet as a Service", "Infrastructure as a Service", "Intelligence as a Service", "Integration as a Service"], a: 1 },
+            { q: "La elasticidad en cloud permite:", opts: ["Cambiar el color de la pantalla", "Agregar/quitar recursos automáticamente", "Borrar datos", "Apagar Internet"], a: 1 },
+            { q: "SaaS ofrece:", opts: ["Infraestructura virtual", "Plataforma de desarrollo", "Software completo vía navegador", "Solo almacenamiento"], a: 2 },
+            { q: "La nube híbrida combina:", opts: ["Solo públicas", "Pública y privada", "Solo privadas", "Nada"], a: 1 },
+            { q: "Un hipervisor permite:", opts: ["Crear máquinas virtuales", "Enviar correos", "Editar fotos", "Jugar videojuegos"], a: 0 }
+        ],
+        '3-1': [
+            { q: "WebRTC permite:", opts: ["Solo enviar archivos", "Comunicación audiovisual en tiempo real entre navegadores", "Solo enviar emails", "Almacenar datos"], a: 1 },
+            { q: "SIP es un protocolo para:", opts: ["Enviar archivos", "Iniciar sesiones de comunicación", "Almacenar datos", "Comprimir videos"], a: 1 },
+            { q: "El codec H.264 se usa para:", opts: ["Enviar emails", "Compresión de video", "Almacenar texto", "Imprimir documentos"], a: 1 },
+            { q: "La latencia en videoconferencia debe ser:", opts: ["Muy alta", "Baja para comunicación fluida", "Irrelevante", "Infinita"], a: 1 },
+            { q: "VP8 es un codec desarrollado por:", opts: ["Microsoft", "Google", "Apple", "Amazon"], a: 1 }
+        ],
+        '3-2': [
+            { q: "El geoprocesamiento analiza:", opts: ["Solo textos", "Datos geográficos y espaciales", "Solo correos", "Solo imágenes"], a: 1 },
+            { q: "GIS significa:", opts: ["Global Internet System", "Geographic Information System", "General Image Storage", "Global Input System"], a: 1 },
+            { q: "Una aplicación de geoprocesamiento es:", opts: ["Enviar emails", "Navegación y logística", "Solo editar texto", "Solo imprimir"], a: 1 },
+            { q: "GPS proporciona:", opts: ["Solo hora", "Ubicación geográfica mediante satélites", "Solo clima", "Solo temperatura"], a: 1 },
+            { q: "La teledetección permite:", opts: ["Solo ver fotos", "Obtener datos de la Tierra desde sensores remotos", "Solo llamar por teléfono", "Solo enviar SMS"], a: 1 }
+        ],
+        '3-3': [
+            { q: "Moodle es una plataforma:", opts: ["De juegos", "LMS (Learning Management System)", "De edición de video", "De diseño gráfico"], a: 1 },
+            { q: "La EAC combina:", opts: ["Solo videoconferencia", "Videoconferencia, almacenamiento y herramientas colaborativas", "Solo emails", "Solo chat"], a: 1 },
+            { q: "Un aula virtual permite:", opts: ["Solo ver videos", "Interacción entre estudiantes y profesores a distancia", "Solo descargar archivos", "Solo imprimir"], a: 1 },
+            { q: "Un simulador en EAC sirve para:", opts: ["Solo jugar", "Practicar en un entorno virtual controlado", "Solo navegar", "Solo chatear"], a: 1 },
+            { q: "Google Classroom es un ejemplo de:", opts: ["Juego", "Plataforma educativa en la nube", "Editor de texto", "Navegador"], a: 1 }
+        ],
+        '3-4': [
+            { q: "En juegos multiusuario, la sincronización de estados asegura:", opts: ["Que todos vean el juego diferente", "Que todos vean el mismo estado del juego", "Que no haya red", "Que solo juegue uno"], a: 1 },
+            { q: "La 'predicción del cliente' sirve para:", opts: ["Predecir el futuro", "Reducir la percepción de latencia", "Eliminar el servidor", "Borrar datos"], a: 1 },
+            { q: "Una arquitectura cliente-servidor en juegos:", opts: ["No existe", "Tiene un servidor central que gestiona el estado", "Todos son iguales", "No usa red"], a: 1 },
+            { q: "P2P en juegos significa:", opts: ["Player to Player", "Peer to Peer (igual a igual)", "Phone to Phone", "Print to Printer"], a: 1 },
+            { q: "La interpolación en juegos sirve para:", opts: ["Suavizar movimiento entre actualizaciones de red", "Eliminar jugadores", "Borrar el juego", "Apagar el servidor"], a: 0 }
+        ],
+        '3-5': [
+            { q: "Un proyecto integrado debe combinar:", opts: ["Solo un tema", "Comunicación distribuida, cloud y aplicación práctica", "Solo cloud", "Solo juegos"], a: 1 },
+            { q: "La documentación técnica debe incluir:", opts: ["Solo el código", "Resumen, objetivos, metodología, desarrollo, resultados y conclusiones", "Solo fotos", "Solo el nombre"], a: 1 },
+            { q: "Las referencias bibliográficas son:", opts: ["Opcionales", "Fuentes consultadas para sustentar el trabajo", "Solo decorativas", "Solo el profesor"], a: 1 },
+            { q: "Justificar decisiones técnicas significa:", opts: ["Elegir al azar", "Explicar por qué se seleccionó cada tecnología con argumentos", "Copiar de internet", "No explicar nada"], a: 1 },
+            { q: "La arquitectura de un proyecto debe:", opts: ["Ser secreta", "Documentarse con diagramas y descripciones claras", "Solo estar en la mente del autor", "No importarle a nadie"], a: 1 }
+        ],
+        '3-6': [
+            { q: "Un prototipo funcional debe:", opts: ["Solo existir en papel", "Demostrar funcionalidad básica del sistema", "Solo tener interfaz", "No funcionar"], a: 1 },
+            { q: "Al implementar en cloud, se debe:", opts: ["Ignorar errores", "Configurar, desplegar y verificar funcionamiento", "Solo escribir código", "Solo diseñar"], a: 1 },
+            { q: "La prueba de integración verifica:", opts: ["Solo una parte", "Que todos los componentes funcionen juntos", "Solo la interfaz", "Solo la base de datos"], a: 1 },
+            { q: "Un 'deploy' en producción significa:", opts: ["Que está en desarrollo", "Que está disponible para usuarios reales", "Que se borró", "Que no funciona"], a: 1 },
+            { q: "Los 'logs' del servidor sirven para:", opts: ["Nada", "Registrar eventos y diagnosticar problemas", "Solo decorar", "Solo imprimir"], a: 1 }
+        ],
+        '3-7': [
+            { q: "Al presentar un proyecto, se debe:", opts: ["Leer todo de la diapositiva", "Demostrar funcionalidad, explicar arquitectura y responder preguntas", "Solo mostrar fotos", "No hablar"], a: 1 },
+            { q: "Las muletillas como 'eh' o 'este':", opts: ["Son profesionales", "Deben evitarse en presentaciones formales", "Son necesarias", "Solo se usan en inglés"], a: 1 },
+            { q: "Un buen guion de presentación incluye:", opts: ["Solo el título", "Introducción, desarrollo, demostración y conclusión", "Solo la conclusión", "Solo fotos"], a: 1 },
+            { q: "La pronunciación de términos técnicos debe ser:", opts: ["Irrelevante", "Correcta y clara", "Solo en inglés", "Solo en código"], a: 1 },
+            { q: "El dominio del tema se demuestra:", opts: ["Leyendo todo", "Explicando con claridad y respondiendo preguntas con seguridad", "Solo mostrando diapositivas", "Hablando muy rápido"], a: 1 }
+        ],
+        '3-8': [
+            { q: "WebRTC permite comunicación:", opts: ["Solo por email", "Audiovisual en tiempo real entre navegadores", "Solo por teléfono", "Solo por fax"], a: 1 },
+            { q: "El geoprocesamiento se aplica en:", opts: ["Solo juegos", "Navegación, logística y gestión de desastres", "Solo email", "Solo redes sociales"], a: 1 },
+            { q: "Moodle es una plataforma de:", opts: ["Juegos", "Gestión del aprendizaje (LMS)", "Edición de video", "Diseño web"], a: 1 },
+            { q: "En juegos multiusuario, la baja latencia es:", opts: ["Irrelevante", "Esencial para experiencia en tiempo real", "Solo para música", "Solo para video"], a: 1 },
+            { q: "La documentación de un proyecto debe incluir:", opts: ["Solo el código fuente", "Arquitectura, justificación técnica y resultados", "Solo fotos", "Solo el nombre del autor"], a: 1 }
+        ]
+    };
+    return qBank[actId] || [];
+}
+
+// ============================================
+// ESTADO GLOBAL
+// ============================================
+let currentUser = null;
+let currentRole = null;
+let currentExam = null;
+let examTimer = null;
+let examTimeLeft = 0;
+let students = JSON.parse(localStorage.getItem('edu_students') || '{}');
+let attendance = JSON.parse(localStorage.getItem('edu_attendance') || '{}');
+let examResults = JSON.parse(localStorage.getItem('edu_results') || '{}');
+
+// ============================================
+// FUNCIONES DE NAVEGACIÓN
+// ============================================
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function showLogin(role) {
+    currentRole = role;
+    if(role === 'alumno') showScreen('alumnoRegScreen');
+    else showScreen('docentePanel');
+}
+
+// ============================================
+// REGISTRO ALUMNO
+// ============================================
+function alumnoReg() {
+    const name = document.getElementById('aName').value.trim();
+    const subject = document.getElementById('aSubject').value.trim();
+    const group = document.getElementById('aGroup').value.trim();
+    const id = document.getElementById('aId').value.trim();
+    if(!name || !subject || !group) { alert('Complete Nombre, Materia y Grupo.'); return; }
+    
+    currentUser = { name, subject, group, id: id || 'N/A', role: 'alumno' };
+    if(!students[id || name]) {
+        students[id || name] = { ...currentUser, activities: {}, attendance: [], grades: {} };
+        saveData();
+    }
+    document.getElementById('sessionUser').textContent = name;
+    showScreen('alumnoPanel');
+    renderParciales();
+    renderAttendance();
+    renderSchedule();
+    renderGradeSummary();
+}
+
+function saveData() {
+    localStorage.setItem('edu_students', JSON.stringify(students));
+    localStorage.setItem('edu_attendance', JSON.stringify(attendance));
+    localStorage.setItem('edu_results', JSON.stringify(examResults));
+}
+
+// ============================================
+// RENDER PARCIALES
+// ============================================
+function renderParciales() {
+    const container = document.getElementById('parcialesContainer');
+    container.innerHTML = '';
+    
+    SEMESTER.parciales.forEach(p => {
+        let completed = 0;
+        const userKey = currentUser.id || currentUser.name;
+        p.activities.forEach(a => {
+            if(students[userKey]?.activities[a.id]?.completed) completed++;
+        });
+        const pct = Math.round((completed / p.activities.length) * 100);
+        
+        let html = `
+            <div class="parcial-card">
+                <div class="parcial-header ${p.color}">
+                    <span>${p.name} — ${p.period}</span>
+                    <span style="font-size:0.85em;">${completed}/${p.activities.length} (${pct}%)</span>
+                </div>
+                <div class="parcial-body">
+                    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                    <div style="margin-top:12px;">
+        `;
+        
+        p.activities.forEach((a, i) => {
+            const userKey = currentUser.id || currentUser.name;
+            const status = students[userKey]?.activities[a.id]?.completed ? 'completed' : '';
+            const badge = status ? '<span class="act-badge badge-done">✅ Completada</span>' : 
+                         '<span class="act-badge badge-pending">⏳ Pendiente</span>';
+            
+            html += `
+                <div class="activity-item ${status}" style="${i > 0 && !students[userKey]?.activities[p.activities[i-1].id]?.completed ? 'opacity:0.6;' : ''}">
+                    <div class="act-info">
+                        <div class="act-title">Actividad ${i+1}: ${a.name}</div>
+                        <div class="act-desc">${a.desc}</div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn btn-primary" style="padding:6px 12px;font-size:0.8em;" onclick="openActivity('${a.id}')">📖 Estudiar</button>
+                        <button class="btn btn-success" style="padding:6px 12px;font-size:0.8em;" onclick="startExam('${a.id}')">📝 Examen</button>
+                        ${badge}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `</div></div></div>`;
+        container.innerHTML += html;
+    });
+}
+
+// ============================================
+// ACTIVIDAD - ESTUDIAR
+// ============================================
+function openActivity(actId) {
+    const act = findActivity(actId);
+    if(!act) return;
+    
+    let html = `
+        <div class="login-box" style="max-width:700px;text-align:left;">
+            <h2 style="color:var(--primary);">📖 ${act.name}</h2>
+            <p style="color:var(--text-light);margin-bottom:15px;">${act.desc}</p>
+            
+            <div class="explanation-box">
+                <h4>📚 Explicación del Tema</h4>
+                <p>${act.explanation}</p>
+            </div>
+            
+            <div class="tip-box">
+                <h4>✍️ Consejos de Redacción y Ortografía</h4>
+                <p>${act.tips}</p>
+            </div>
+            
+            <div style="background:#e8f5e9;padding:12px;border-radius:8px;margin-top:15px;">
+                <h4 style="color:var(--success);">📋 Estructura para Trabajos y Proyectos</h4>
+                <ol style="padding-left:20px;margin-top:8px;font-size:0.9em;">
+                    <li><strong>Portada:</strong> Institución, materia, nombre, grupo, fecha</li>
+                    <li><strong>Índice:</strong> Contenido con números de página</li>
+                    <li><strong>Introducción:</strong> Contexto, objetivos, justificación</li>
+                    <li><strong>Desarrollo:</strong> Contenido principal con subtítulos</li>
+                    <li><strong>Conclusiones:</strong> Resumen de hallazgos y aprendizajes</li>
+                    <li><strong>Referencias:</strong> Fuentes consultadas (formato APA)</li>
+                </ol>
+            </div>
+            
+            <div style="background:#fff3e0;padding:12px;border-radius:8px;margin-top:15px;">
+                <h4 style="color:var(--warning);">⚠️ Reglas Ortográficas Básicas</h4>
+                <ul style="padding-left:20px;margin-top:8px;font-size:0.9em;">
+                    <li><strong>Tildes:</strong> Agudas (última sílaba, terminan en N/S/V) → compás, información</li>
+                    <li><strong>Llanas:</strong> (penúltima sílaba, NO terminan en N/S/V) → fácil, lápiz</li>
+                    <li><strong>Esdrújulas:</strong> (antepenúltima sílaba) SIEMPRE llevan tilde → comunicación, código</li>
+                    <li><strong>B/V:</strong> Antes de consonante → B (obtener); después de N → V (enviar)</li>
+                    <li><strong>H:</strong> Palabras que empiezan con 'hue' → huevo, huelga (siempre con H)</li>
+                    <li><strong>Puntuación:</strong> Punto y seguido separa ideas; coma separa elementos de una lista</li>
+                </ul>
+            </div>
+            
+            <br>
+            <button class="btn btn-primary" onclick="this.closest('.login-box').remove();renderParciales();" style="width:100%;">✅ Cerrar y Volver</button>
+        </div>
+    `;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.display = 'block';
+    overlay.innerHTML = `<div class="modal" style="max-width:750px;max-height:85vh;overflow-y:auto;">${html}</div>`;
+    overlay.onclick = e => { if(e.target === overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+}
+
+function findActivity(actId) {
+    for(const p of SEMESTER.parciales) {
+        for(const a of p.activities) {
+            if(a.id === actId) return a;
+        }
+    }
+    return null;
+}
+
+// ============================================
+// EXAMEN
+// ============================================
+function startExam(actId) {
+    const questions = generateQuestions(actId);
+    if(!questions.length) { alert('No hay preguntas disponibles.'); return; }
+    
+    const act = findActivity(actId);
+    currentExam = { actId, questions, startTime: Date.now() };
+    examTimeLeft = 30 * 60; // 30 minutos por examen
+    
+    document.getElementById('examTitle').textContent = `📝 Examen: ${act.name}`;
+    showScreen('examScreen');
+    renderExam(questions);
+    runExamTimer();
+}
+
+function renderExam(questions) {
+    const container = document.getElementById('examContent');
+    let html = '';
+    questions.forEach((q, i) => {
+        html += `
+            <div class="q-block">
+                <span class="q-num">${i+1}</span>
+                <span class="q-text">${q.q}</span>
+                <ul class="opts">
+                    ${q.opts.map((o, j) => `<li><label><input type="radio" name="eq${i}" value="${j}"> ${String.fromCharCode(97+j)}) ${o}</label></li>`).join('')}
+                </ul>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function runExamTimer() {
+    examTimer = setInterval(() => {
+        examTimeLeft--;
+        const m = Math.floor(examTimeLeft / 60), s = examTimeLeft % 60;
+        const el = document.getElementById('examTimer');
+        el.textContent = `⏱️ ${m}:${s.toString().padStart(2, '0')}`;
+        
+        if(examTimeLeft <= 300) {
+            el.className = 'warning';
+        }
+        if(examTimeLeft <= 60) {
+            el.className = 'danger';
+        }
+        if(examTimeLeft <= 0) {
+            clearInterval(examTimer);
+            alert('⏰ Tiempo agotado. Enviando examen...');
+            submitExam();
+        }
+    }, 1000);
+}
+
+function submitExam() {
+    clearInterval(examTimer);
+    if(!currentExam) return;
+    
+    let correct = 0;
+    const total = currentExam.questions.length;
+    currentExam.questions.forEach((q, i) => {
+        const sel = document.querySelector(`input[name="eq${i}"]:checked`);
+        if(sel && parseInt(sel.value) === q.a) correct++;
+    });
+    
+    const grade = Math.round((correct / total) * 100) / 10;
+    const timeUsed = Math.round((Date.now() - currentExam.startTime) / 60000);
+    
+    // Guardar resultado
+    const userKey = currentUser.id || currentUser.name;
+    if(!students[userKey]) students[userKey] = { activities: {} };
+    if(!students[userKey].activities) students[userKey].activities = {};
+    
+    students[userKey].activities[currentExam.actId] = {
+        completed: true,
+        grade: grade,
+        correct: `${correct}/${total}`,
+        time: `${timeUsed} min`,
+        date: new Date().toLocaleString('es-MX')
+    };
+    
+    // Calificar parcial
+    updatePartialGrades(userKey);
+    saveData();
+    
+    // Mostrar resultado
+    showExamResult(grade, correct, total, timeUsed);
+}
+
+function showExamResult(grade, correct, total, time) {
+    clearInterval(examTimer);
+    showScreen('resultScreen');
+    
+    let cls, msg;
+    if(grade >= 9) { cls='g-excellent'; msg='🏆 ¡EXCELENTE! Dominas este tema.'; }
+    else if(grade >= 7.5) { cls='g-good'; msg='✅ ¡APROBADO! Buen dominio.'; }
+    else if(grade >= 6) { cls='g-avg'; msg='⚠️ SUFICIENTE. Refuerza conceptos.'; }
+    else { cls='g-fail'; msg='❌ NO APROBADO. Repasa el tema.'; }
+    
+    const act = findActivity(currentExam.actId);
+    document.getElementById('resultBox').innerHTML = `
+        <h2 style="color:var(--primary);font-family:'Montserrat';">📊 Resultado del Examen</h2>
+        <p style="color:var(--text-light);margin-bottom:10px;">${act.name}</p>
+        <div class="grade-circle" style="background:linear-gradient(135deg,${grade>=7.5?'#1b5e20,#43a047':grade>=6?'#e65100,#ff9800':'#b71c1c,#e53935'});color:white;">
+            <div class="g-num">${grade.toFixed(1)}</div>
+            <div class="g-lbl">de 10</div>
+        </div>
+        <div class="res-msg" style="background:${grade>=7.5?'#e8f5e9':grade>=6?'#fff3e0':'#fce4ec'};color:${grade>=7.5?'#1b5e20':grade>=6?'#e65100':'#b71c1c'};border-radius:10px;padding:12px;">${msg}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0;">
+            <div style="background:#f5f5f5;padding:10px;border-radius:8px;"><small>Correctas</small><br><strong>${correct}/${total}</strong></div>
+            <div style="background:#f5f5f5;padding:10px;border-radius:8px;"><small>Tiempo</small><br><strong>${time} min</strong></div>
+            <div style="background:#f5f5f5;padding:10px;border-radius:8px;"><small>Fecha</small><br><strong>${new Date().toLocaleString('es-MX')}</strong></div>
+            <div style="background:#f5f5f5;padding:10px;border-radius:8px;"><small>Estado</small><br><strong style="color:${grade>=6?'var(--success)':'var(--danger)'}">${grade>=6?'✅ Aprobado':'❌ Reprobado'}</strong></div>
+        </div>
+        <button class="btn btn-primary" onclick="showScreen('alumnoPanel');renderParciales();renderGradeSummary();" style="width:100%;">📚 Volver al Panel</button>
+    `;
+}
+
+function updatePartialGrades(userKey) {
+    SEMESTER.parciales.forEach(p => {
+        let sum = 0, count = 0;
+        p.activities.forEach(a => {
+            if(students[userKey]?.activities[a.id]?.completed) {
+                sum += students[userKey].activities[a.id].grade || 0;
+                count++;
+            }
+        });
+        if(count > 0) {
+            students[userKey].grades[`P${p.id}`] = Math.round((sum / count) * 100) / 100;
+        }
+    });
+}
+
+// ============================================
+// ASISTENCIA
+// ============================================
+function renderAttendance() {
+    const userKey = currentUser.id || currentUser.name;
+    const att = students[userKey]?.attendance || [];
+    const log = document.getElementById('attLog');
+    
+    if(!att.length) {
+        log.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No hay registros de asistencia aún.</p>';
+    } else {
+        log.innerHTML = att.map(a => `
+            <div class="att-entry">
+                <span>${a.date}</span>
+                <span class="att-time">${a.type === 'in' ? '✅ Entrada' : '🚪 Salida'}: ${a.time}</span>
+                <span>${a.duration || '—'}</span>
+            </div>
+        `).join('');
+    }
+    
+    updateAttStatus();
+}
+
+function updateAttStatus() {
+    const userKey = currentUser.id || currentUser.name;
+    const att = students[userKey]?.attendance || [];
+    const today = new Date().toLocaleDateString('es-MX');
+    const todayAtt = att.filter(a => a.date === today);
+    
+    const statusEl = document.getElementById('attStatus');
+    const hasIn = todayAtt.some(a => a.type === 'in');
+    const hasOut = todayAtt.some(a => a.type === 'out');
+    
+    if(hasOut) {
+        statusEl.style.background = '#e8f5e9';
+        statusEl.innerHTML = `✅ Sesión de hoy completada`;
+    } else if(hasIn) {
+        statusEl.style.background = '#fff3e0';
+        statusEl.innerHTML = `⏳ Sesión en curso — No olvide checar salida (máx. 2 horas)`;
+    } else {
+        statusEl.style.background = '#e3f2fd';
+        statusEl.innerHTML = `📋 Sin registro hoy — Cheque entrada para iniciar sesión`;
+    }
+}
+
+function checkIn() {
+    const userKey = currentUser.id || currentUser.name;
+    if(!students[userKey]) students[userKey] = { attendance: [], activities: {}, grades: {} };
+    if(!students[userKey].attendance) students[userKey].attendance = [];
+    
+    const today = new Date().toLocaleDateString('es-MX');
+    const todayAtt = students[userKey].attendance.filter(a => a.date === today && a.type === 'in');
+    
+    // Máximo 2 sesiones por semana
+    const weekStart = getWeekStart();
+    const weekAtt = students[userKey].attendance.filter(a => {
+        const d = new Date(a.date.split('/').reverse().join('-'));
+        return d >= weekStart && a.type === 'in';
+    });
+    
+    if(weekAtt.length >= 2) {
+        alert('⚠️ Ya completó sus 2 sesiones semanales.');
+        return;
+    }
+    
+    const hasInToday = students[userKey].attendance.some(a => a.date === today && a.type === 'in' && !students[userKey].attendance.some(b => b.date === today && b.type === 'out'));
+    if(hasInToday) {
+        alert('⚠️ Ya registró entrada hoy. Cheque salida primero.');
+        return;
+    }
+    
+    const now = new Date();
+    students[userKey].attendance.push({
+        date: today,
+        time: now.toLocaleTimeString('es-MX'),
+        type: 'in',
+        timestamp: Date.now()
+    });
+    
+    saveData();
+    renderAttendance();
+    alert('✅ Entrada registrada: ' + now.toLocaleTimeString('es-MX'));
+}
+
+function checkOut() {
+    const userKey = currentUser.id || currentUser.name;
+    const today = new Date().toLocaleDateString('es-MX');
+    const att = students[userKey]?.attendance || [];
+    
+    const lastIn = [...att].reverse().find(a => a.date === today && a.type === 'in');
+    if(!lastIn) {
+        alert('⚠️ No hay entrada registrada hoy.');
+        return;
+    }
+    
+    const hasOut = att.some(a => a.date === today && a.type === 'out');
+    if(hasOut) {
+        alert('⚠️ Ya registró salida hoy.');
+        return;
+    }
+    
+    const now = new Date();
+    const duration = Math.round((now.getTime() - lastIn.timestamp) / 60000);
+    
+    if(duration > 120) {
+        alert('⚠️ Ha excedido el tiempo máximo de 2 horas. Se registrará como falta parcial.');
+    }
+    
+    students[userKey].attendance.push({
+        date: today,
+        time: now.toLocaleTimeString('es-MX'),
+        type: 'out',
+        duration: `${duration} min`,
+        timestamp: Date.now()
+    });
+    
+    saveData();
+    renderAttendance();
+    alert(`🚪 Salida registrada: ${now.toLocaleTimeString('es-MX')} (Duración: ${duration} min)`);
+}
+
+function getWeekStart() {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(now.setDate(diff));
+    monday.setHours(0,0,0,0);
+    return monday;
+}
+
+// ============================================
+// HORARIO
+// ============================================
+function renderSchedule() {
+    const schedule = document.getElementById('weekSchedule');
+    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+    // 2 sesiones por semana: por ejemplo Lunes y Jueves
+    const sessionDays = [0, 3]; // Lunes y Jueves
+    
+    schedule.innerHTML = days.map((d, i) => {
+        const isSession = sessionDays.includes(i);
+        return `
+            <div class="week-card" style="${isSession ? 'border-left-color:var(--success);background:#f1f8e9;' : ''}">
+                <div class="day">${d}</div>
+                <div class="time">${isSession ? '🟢 SESIÓN ACTIVA — 2 horas (9:00 - 11:00)' : '⚪ Sin sesión'}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// CALIFICACIONES ALUMNO
+// ============================================
+function renderGradeSummary() {
+    const userKey = currentUser.id || currentUser.name;
+    const user = students[userKey];
+    if(!user) return;
+    
+    const container = document.getElementById('gradeSummary');
+    let html = `<h3 style="margin-bottom:15px;">📊 Resumen de Calificaciones — ${currentUser.name}</h3>`;
+    
+    let totalSum = 0, parcialCount = 0;
+    
+    SEMESTER.parciales.forEach(p => {
+        const grade = user.grades?.[`P${p.id}`] || 0;
+        if(grade > 0) { totalSum += grade; parcialCount++; }
+        const cls = grade >= 9 ? 'g-excellent' : grade >= 7.5 ? 'g-good' : grade >= 6 ? 'g-avg' : 'g-fail';
+        html += `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f5f5f5;border-radius:8px;margin-bottom:8px;">
+                <span style="font-weight:600;">${p.name}</span>
+                <span class="grade-badge ${grade > 0 ? cls : 'g-fail'}" style="${grade === 0 ? 'background:#ccc;' : ''}">${grade > 0 ? grade.toFixed(1) : '—'}</span>
+            </div>
+        `;
+    });
+    
+    const final = parcialCount > 0 ? (totalSum / parcialCount).toFixed(1) : '—';
+    html += `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px;background:var(--primary);color:white;border-radius:10px;margin-top:15px;font-family:'Montserrat';font-weight:700;">
+            <span>CALIFICACIÓN FINAL</span>
+            <span style="font-size:1.5em;">${final}</span>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+// ============================================
+// TABS ALUMNO
+// ============================================
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.getElementById(`tab-${tab}`).classList.remove('hidden');
+    document.querySelectorAll('#alumnoPanel .nav-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+// ============================================
+// PANEL DOCENTE
+// ============================================
+function renderDocente() {
+    renderDocStats();
+    renderStudentsTable();
+    renderAttTable();
+    renderActTable();
+}
+
+function switchDocTab(tab) {
+    document.querySelectorAll('.doc-tab').forEach(t => t.classList.add('hidden'));
+    document.getElementById(`doc-tab-${tab}`).classList.remove('hidden');
+    document.querySelectorAll('#docentePanel .nav-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function renderDocStats() {
+    const studentList = Object.values(students);
+    const totalStudents = studentList.length;
+    const totalExams = Object.values(examResults).length;
+    
+    let allGrades = [];
+    studentList.forEach(s => {
+        Object.values(s.grades || {}).forEach(g => { if(g > 0) allGrades.push(g); });
+    });
+    const avg = allGrades.length ? (allGrades.reduce((a,b)=>a+b,0)/allGrades.length).toFixed(1) : '—';
+    const passed = allGrades.filter(g => g >= 6).length;
+    const failed = allGrades.length - passed;
+    
+    let totalAtt = 0;
+    studentList.forEach(s => { totalAtt += (s.attendance || []).filter(a => a.type === 'in').length; });
+    
+    document.getElementById('docStats').innerHTML = `
+        <div class="stat-card"><div class="num" style="color:var(--primary);">${totalStudents}</div><div class="lbl">Alumnos Registrados</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--success);">${totalExams}</div><div class="lbl">Exámenes Presentados</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--info);">${avg}</div><div class="lbl">Promedio General</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--success);">${passed}</div><div class="lbl">Aprobados</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--danger);">${failed}</div><div class="lbl">No Aprobados</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--warning);">${totalAtt}</div><div class="lbl">Asistencias Totales</div></div>
+    `;
+}
+
+function renderStudentsTable() {
+    const tbody = document.getElementById('studentsBody');
+    const studentList = Object.values(students);
+    
+    if(!studentList.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#999;padding:30px;">No hay alumnos registrados aún.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = studentList.map((s, i) => {
+        const p1 = s.grades?.P1 || 0;
+        const p2 = s.grades?.P2 || 0;
+        const p3 = s.grades?.P3 || 0;
+        const finals = [p1, p2, p3].filter(g => g > 0);
+        const final = finals.length ? (finals.reduce((a,b)=>a+b,0)/finals.length).toFixed(1) : '—';
+        const cls = final >= 9 ? 'g-excellent' : final >= 7.5 ? 'g-good' : final >= 6 ? 'g-avg' : 'g-fail';
+        
+        return `
+            <tr>
+                <td>${i+1}</td>
+                <td><strong>${s.name}</strong></td>
+                <td>${s.group}</td>
+                <td><span class="grade-badge ${p1>=6?cls:'g-fail'}" style="${p1===0?'background:#ccc;':''}">${p1||'—'}</span></td>
+                <td><span class="grade-badge ${p2>=6?cls:'g-fail'}" style="${p2===0?'background:#ccc;':''}">${p2||'—'}</span></td>
+                <td><span class="grade-badge ${p3>=6?cls:'g-fail'}" style="${p3===0?'background:#ccc;':''}">${p3||'—'}</span></td>
+                <td style="font-family:'Montserrat';font-weight:700;">${final}</td>
+                <td style="color:${final>=6?'var(--success)':'var(--danger)'};">${final>=6?'✅ Aprobado':'❌ Reprobado'}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderAttTable() {
+    const tbody = document.getElementById('attBody');
+    const studentList = Object.values(students);
+    
+    if(!studentList.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px;">No hay datos.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = studentList.map(s => {
+        const att = s.attendance || [];
+        const sessions = att.filter(a => a.type === 'in').length;
+        const completed = att.filter(a => a.type === 'out').length;
+        const faltas = Math.max(0, 2 - completed); // Simplificado
+        const totalMin = att.reduce((sum, a) => {
+            if(a.duration) return sum + parseInt(a.duration);
+            return sum;
+        }, 0);
+        const pct = Math.min(100, Math.round((completed / 2) * 100)); // Por semana
+        
+        return `
+            <tr>
+                <td><strong>${s.name}</strong></td>
+                <td>${s.group}</td>
+                <td>${sessions}</td>
+                <td style="color:var(--danger);">${faltas}</td>
+                <td>0</td>
+                <td>${totalMin} min</td>
+                <td><span class="grade-badge ${pct>=80?'g-excellent':pct>=60?'g-avg':'g-fail'}">${pct}%</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderActTable() {
+    const tbody = document.getElementById('actBody');
+    const studentList = Object.values(students);
+    
+    if(!studentList.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">No hay datos.</td></tr>';
+        return;
+    }
+    
+    let rows = '';
+    studentList.forEach(s => {
+        SEMESTER.parciales.forEach(p => {
+            p.activities.forEach(a => {
+                const actData = s.activities?.[a.id];
+                if(actData) {
+                    const cls = actData.grade >= 9 ? 'g-excellent' : actData.grade >= 7.5 ? 'g-good' : actData.grade >= 6 ? 'g-avg' : 'g-fail';
+                    rows += `
+                        <tr>
+                            <td>${s.name}</td>
+                            <td>${p.name}</td>
+                            <td>${a.name}</td>
+                            <td style="color:var(--success);">✅</td>
+                            <td><span class="grade-badge ${cls}">${actData.grade.toFixed(1)}</span></td>
+                            <td style="font-size:0.8em;">${actData.date}</td>
+                        </tr>
+                    `;
+                }
+            });
+        });
+    });
+    
+    tbody.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">No hay actividades completadas aún.</td></tr>';
+}
+
+// ============================================
+// EXPORTAR DATOS
+// ============================================
+function exportGrades() {
+    const studentList = Object.values(students);
+    if(!studentList.length) { alert('No hay datos para exportar.'); return; }
+    
+    let csv = 'No.,Alumno,Materia,Grupo,Parcial 1,Parcial 2,Parcial 3,Final,Estado\n';
+    studentList.forEach((s, i) => {
+        const p1 = s.grades?.P1 || '—';
+        const p2 = s.grades?.P2 || '—';
+        const p3 = s.grades?.P3 || '—';
+        const finals = [s.grades?.P1, s.grades?.P2, s.grades?.P3].filter(g => g && g > 0);
+        const final = finals.length ? (finals.reduce((a,b)=>a+b,0)/finals.length).toFixed(1) : '—';
+        const estado = final >= 6 ? 'Aprobado' : 'Reprobado';
+        csv += `${i+1},"${s.name}","${s.subject}","${s.group}",${p1},${p2},${p3},${final},${estado}\n`;
+    });
+    
+    downloadCSV(csv, 'Calificaciones');
+}
+
+function exportAttendance() {
+    const studentList = Object.values(students);
+    if(!studentList.length) { alert('No hay datos para exportar.'); return; }
+    
+    let csv = 'Alumno,Grupo,Sesiones,Completadas,Total Minutos,Fecha,Hora,Tipo\n';
+    studentList.forEach(s => {
+        (s.attendance || []).forEach(a => {
+            csv += `"${s.name}","${s.group}",,,${a.duration||'—'},"${a.date}","${a.time}","${a.type}"\n`;
+        });
+    });
+    
+    downloadCSV(csv, 'Asistencia');
+}
+
+function exportFullReport() {
+    const studentList = Object.values(students);
+    if(!studentList.length) { alert('No hay datos para exportar.'); return; }
+    
+    let csv = 'REPORTE COMPLETO DEL SEMESTRE\n';
+    csv += `Fecha de generación: ${new Date().toLocaleString('es-MX')}\n\n`;
+    csv += '=== CALIFICACIONES ===\n';
+    csv += 'Alumno,Grupo,P1,P2,P3,Final,Estado\n';
+    studentList.forEach(s => {
+        const finals = [s.grades?.P1, s.grades?.P2, s.grades?.P3].filter(g => g && g > 0);
+        const final = finals.length ? (finals.reduce((a,b)=>a+b,0)/finals.length).toFixed(1) : '—';
+        csv += `"${s.name}","${s.group}",${s.grades?.P1||'—'},${s.grades?.P2||'—'},${s.grades?.P3||'—'},${final},${final>=6?'Aprobado':'Reprobado'}\n`;
+    });
+    csv += '\n=== ACTIVIDADES ===\n';
+    csv += 'Alumno,Parcial,Actividad,Calificacion,Fecha\n';
+    studentList.forEach(s => {
+        SEMESTER.parciales.forEach(p => {
+            p.activities.forEach(a => {
+                const act = s.activities?.[a.id];
+                if(act) csv += `"${s.name}","${p.name}","${a.name}",${act.grade.toFixed(1)},"${act.date}"\n`;
+            });
+        });
+    });
+    
+    downloadCSV(csv, 'Reporte_Completo');
+}
+
+function downloadCSV(csv, name) {
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${name}_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ============================================
+// AUTO REFRESH DOCENTE
+// ============================================
+setInterval(() => {
+    if(document.getElementById('docentePanel').classList.contains('active')) {
+        renderDocente();
+    }
+}, 5000); // Actualizar cada 5 segundos
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', () => {
+    // Verificar si hay sesión guardada
+    const savedUser = localStorage.getItem('edu_currentUser');
+    if(savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('sessionUser').textContent = currentUser.name;
+    }
+});
+</script>
+</body>
+</html>
